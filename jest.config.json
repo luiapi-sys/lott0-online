@@ -1,0 +1,18 @@
+{
+  "projects": [
+    {
+      "displayName": "unit",
+      "preset": "ts-jest",
+      "testEnvironment": "node",
+      "roots": ["<rootDir>/test/unit"],
+      "testMatch": ["**/*.spec.ts"]
+    },
+    {
+      "displayName": "e2e",
+      "preset": "ts-jest",
+      "testEnvironment": "node",
+      "roots": ["<rootDir>/test/e2e"],
+      "testMatch": ["**/*.e2e-spec.ts"]
+    }
+  ]
+}

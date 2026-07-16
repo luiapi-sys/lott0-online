@@ -1,0 +1,37 @@
+generator client {
+  provider      = "prisma-client"
+  output        = "../src/generated/prisma"
+  previewFeatures = ["prisma-client"]
+}
+
+datasource db {
+  provider = "postgresql"
+  // NOTE: no `url` here — Prisma 7 reads it from prisma.config.ts (env DATABASE_URL)
+}
+
+/// System-wide configuration key/value store (audited, low-write).
+model SystemConfig {
+  key       String   @id @db.VarChar(128)
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+  updatedBy String?  @db.VarChar(64)
+
+  @@map("system_config")
+}
+
+/// Run-state ledger for background loop workers (audit / optimize / consolidate).
+model WorkerRun {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workerName    String    @db.VarChar(32)
+  status        String    @db.VarChar(16) // SUCCESS | ERROR | SKIPPED
+  startedAt     DateTime  @default(now()) @db.Timestamptz(6)
+  finishedAt    DateTime?
+  durationMs    Int?
+  itemsProcessed Int?
+  message       String?   @db.Text
+  error         String?   @db.Text
+
+  @@index([workerName])
+  @@index([startedAt])
+  @@map("worker_runs")
+}

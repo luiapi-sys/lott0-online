@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: lott0-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lott0
+      POSTGRES_PASSWORD: lott0
+      POSTGRES_DB: lott0
+    ports:
+      # local 5455 (5432 taken by another project); container-internal stays 5432
+      - "5455:5432"
+    volumes:
+      - lott0pg2:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lott0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: lott0-redis
+    restart: unless-stopped
+    ports:
+      # local 6380 (6379 taken by another project); container-internal stays 6379
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  lott0pg2:

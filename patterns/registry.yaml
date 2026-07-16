@@ -1,0 +1,14 @@
+# patterns/registry.yaml — machine-readable loop index
+patterns:
+  - name: daily-triage
+    level: L1
+    tool: hermes
+    cadence: "0 7 * * 1-5"
+    job_id: fec756ffd57f
+    deliver: local
+    skill: loop-triage
+    verifier_skill: loop-verifier
+    workdir: "."
+    state_file: STATE.md
+    report_only: true
+    enabled: true

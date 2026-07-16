@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.env.local
+*.log
+coverage
+tools
+.DS_Store
+src/generated

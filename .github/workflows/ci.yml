@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: lott0
+          POSTGRES_PASSWORD: lott0
+          POSTGRES_DB: lott0
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lott0"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://lott0:lott0@localhost:5432/lott0?schema=public
+      JWT_ACCESS_SECRET: ci-access-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
+      BCRYPT_ROUNDS: 12
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      WORKER_AUDIT_INTERVAL: 270
+      WORKER_OPTIMIZE_INTERVAL: 3600
+      WORKER_CONSOLIDATE_INTERVAL: 86400
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run build
+      - run: npx prisma migrate deploy
+      - run: npm test
+      - name: Boot smoke test
+        run: |
+          node dist/main.js &
+          APP_PID=$!
+          sleep 6
+          curl -fsS http://localhost:3100/v1/health || (kill $APP_PID; exit 1)
+          curl -fsS http://localhost:3100/v1/health/ready || (kill $APP_PID; exit 1)
+          kill $APP_PID
