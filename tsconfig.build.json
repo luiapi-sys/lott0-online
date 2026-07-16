@@ -22,5 +22,12 @@
     "resolveJsonModule": true,
     "moduleResolution": "node"
   },
-  "exclude": ["node_modules", "dist", "test", "src/generated"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "src/generated",
+    "prisma.config.ts",
+    "prisma"
+  ]
 }
