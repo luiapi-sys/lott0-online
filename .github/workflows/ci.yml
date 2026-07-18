@@ -49,6 +49,8 @@ jobs:
       - run: npm run build
       - run: npx prisma migrate deploy
       - run: npm test
+      - name: Lint
+        run: npm run lint:check
       - name: Boot smoke test
         run: |
           node dist/main.js &
